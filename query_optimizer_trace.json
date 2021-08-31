@@ -1,0 +1,1322 @@
+{
+  "steps": [
+    {
+      "join_preparation": {
+        "select#": 1,
+        "steps": [
+          {
+            "expanded_query": "/* select#1 */ select `o`.`id` AS `id`,`o`.`deleted_at` AS `deleted_at` from (((`_orders` `o` join `_line_items` `li` on((`o`.`id` = `li`.`order_id`))) join `_registrations` `rs` on(((`rs`.`id` = `li`.`discr_id`) and (`li`.`discr_type` = 'event')))) join `_registrants` `r` on((`rs`.`registrant_id` = `r`.`id`))) where ((`r`.`user_id` = 58) and (`li`.`discr_type` = 'event')) group by `o`.`id` limit 1"
+          },
+          {
+            "transformations_to_nested_joins": {
+              "transformations": [
+                "JOIN_condition_to_WHERE",
+                "parenthesis_removal"
+              ],
+              "expanded_query": "/* select#1 */ select `o`.`id` AS `id`,`o`.`deleted_at` AS `deleted_at` from `_orders` `o` join `_line_items` `li` join `_registrations` `rs` join `_registrants` `r` where ((`r`.`user_id` = 58) and (`li`.`discr_type` = 'event') and (`rs`.`registrant_id` = `r`.`id`) and (`rs`.`id` = `li`.`discr_id`) and (`li`.`discr_type` = 'event') and (`o`.`id` = `li`.`order_id`)) group by `o`.`id` limit 1"
+            }
+          },
+          {
+            "functional_dependencies_of_GROUP_columns": {
+              "all_columns_of_table_map_bits": [
+                0
+              ],
+              "columns": [
+                "test.o.id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "join_optimization": {
+        "select#": 1,
+        "steps": [
+          {
+            "condition_processing": {
+              "condition": "WHERE",
+              "original_condition": "((`r`.`user_id` = 58) and (`li`.`discr_type` = 'event') and (`rs`.`registrant_id` = `r`.`id`) and (`rs`.`id` = `li`.`discr_id`) and (`li`.`discr_type` = 'event') and (`o`.`id` = `li`.`order_id`))",
+              "steps": [
+                {
+                  "transformation": "equality_propagation",
+                  "resulting_condition": "((`li`.`discr_type` = 'event') and (`rs`.`id` = `li`.`discr_id`) and (`li`.`discr_type` = 'event') and multiple equal(58, `r`.`user_id`) and multiple equal(`rs`.`registrant_id`, `r`.`id`) and multiple equal(`o`.`id`, `li`.`order_id`))"
+                },
+                {
+                  "transformation": "constant_propagation",
+                  "resulting_condition": "((`li`.`discr_type` = 'event') and (`rs`.`id` = `li`.`discr_id`) and ('event' = 'event') and multiple equal(58, `r`.`user_id`) and multiple equal(`rs`.`registrant_id`, `r`.`id`) and multiple equal(`o`.`id`, `li`.`order_id`))"
+                },
+                {
+                  "transformation": "trivial_condition_removal",
+                  "resulting_condition": "((`li`.`discr_type` = 'event') and (`rs`.`id` = `li`.`discr_id`) and multiple equal(58, `r`.`user_id`) and multiple equal(`rs`.`registrant_id`, `r`.`id`) and multiple equal(`o`.`id`, `li`.`order_id`))"
+                }
+              ]
+            }
+          },
+          {
+            "substitute_generated_columns": {
+            }
+          },
+          {
+            "table_dependencies": [
+              {
+                "table": "`_orders` `o`",
+                "row_may_be_null": false,
+                "map_bit": 0,
+                "depends_on_map_bits": [
+                ]
+              },
+              {
+                "table": "`_line_items` `li`",
+                "row_may_be_null": false,
+                "map_bit": 1,
+                "depends_on_map_bits": [
+                ]
+              },
+              {
+                "table": "`_registrations` `rs`",
+                "row_may_be_null": false,
+                "map_bit": 2,
+                "depends_on_map_bits": [
+                ]
+              },
+              {
+                "table": "`_registrants` `r`",
+                "row_may_be_null": false,
+                "map_bit": 3,
+                "depends_on_map_bits": [
+                ]
+              }
+            ]
+          },
+          {
+            "ref_optimizer_key_uses": [
+              {
+                "table": "`_orders` `o`",
+                "field": "id",
+                "equals": "`li`.`order_id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_line_items` `li`",
+                "field": "order_id",
+                "equals": "`o`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_line_items` `li`",
+                "field": "discr_id",
+                "equals": "`rs`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_line_items` `li`",
+                "field": "discr_type",
+                "equals": "'event'",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_line_items` `li`",
+                "field": "order_id",
+                "equals": "`o`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_registrations` `rs`",
+                "field": "id",
+                "equals": "`li`.`discr_id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_registrations` `rs`",
+                "field": "registrant_id",
+                "equals": "`r`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_registrations` `rs`",
+                "field": "id",
+                "equals": "`li`.`discr_id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_registrants` `r`",
+                "field": "id",
+                "equals": "`rs`.`registrant_id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_registrants` `r`",
+                "field": "user_id",
+                "equals": "58",
+                "null_rejecting": true
+              },
+              {
+                "table": "`_registrants` `r`",
+                "field": "id",
+                "equals": "`rs`.`registrant_id`",
+                "null_rejecting": true
+              }
+            ]
+          },
+          {
+            "rows_estimation": [
+              {
+                "table": "`_orders` `o`",
+                "const_keys_added": {
+                  "keys": [
+                    "PRIMARY"
+                  ],
+                  "cause": "group_by"
+                },
+                "range_analysis": {
+                  "table_scan": {
+                    "rows": 359732,
+                    "cost": 36143.6
+                  },
+                  "potential_range_indexes": [
+                    {
+                      "index": "PRIMARY",
+                      "usable": true,
+                      "key_parts": [
+                        "id"
+                      ]
+                    }
+                  ],
+                  "setup_range_conditions": [
+                  ],
+                  "group_index_range": {
+                    "chosen": false,
+                    "cause": "not_single_table"
+                  },
+                  "skip_scan_range": {
+                    "chosen": false,
+                    "cause": "not_single_table"
+                  }
+                }
+              },
+              {
+                "table": "`_line_items` `li`",
+                "table_scan": {
+                  "rows": 926816,
+                  "cost": 777
+                }
+              },
+              {
+                "table": "`_registrations` `rs`",
+                "table_scan": {
+                  "rows": 438345,
+                  "cost": 232.25
+                }
+              },
+              {
+                "table": "`_registrants` `r`",
+                "range_analysis": {
+                  "table_scan": {
+                    "rows": 81696,
+                    "cost": 8227.95
+                  },
+                  "potential_range_indexes": [
+                    {
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "cause": "not_applicable"
+                    },
+                    {
+                      "index": "_registrants_user_id_index",
+                      "usable": true,
+                      "key_parts": [
+                        "user_id",
+                        "id"
+                      ]
+                    }
+                  ],
+                  "best_covering_index_scan": {
+                    "index": "_registrants_user_id_index",
+                    "cost": 8212.76,
+                    "chosen": true
+                  },
+                  "setup_range_conditions": [
+                  ],
+                  "group_index_range": {
+                    "chosen": false,
+                    "cause": "not_single_table"
+                  },
+                  "skip_scan_range": {
+                    "chosen": false,
+                    "cause": "not_single_table"
+                  },
+                  "analyzing_range_alternatives": {
+                    "range_scan_alternatives": [
+                      {
+                        "index": "_registrants_user_id_index",
+                        "ranges": [
+                          "58 <= user_id <= 58"
+                        ],
+                        "index_dives_for_eq_ranges": true,
+                        "rowid_ordered": true,
+                        "using_mrr": false,
+                        "index_only": true,
+                        "rows": 6970,
+                        "cost": 701.128,
+                        "chosen": true
+                      }
+                    ],
+                    "analyzing_roworder_intersect": {
+                      "usable": false,
+                      "cause": "too_few_roworder_scans"
+                    }
+                  },
+                  "chosen_range_access_summary": {
+                    "range_access_plan": {
+                      "type": "range_scan",
+                      "index": "_registrants_user_id_index",
+                      "rows": 6970,
+                      "ranges": [
+                        "58 <= user_id <= 58"
+                      ]
+                    },
+                    "rows_for_plan": 6970,
+                    "cost_for_plan": 701.128,
+                    "chosen": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "considered_execution_plans": [
+              {
+                "plan_prefix": [
+                ],
+                "table": "`_registrants` `r`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "access_type": "ref",
+                      "index": "_registrants_user_id_index",
+                      "rows": 6970,
+                      "cost": 701.118,
+                      "chosen": true
+                    },
+                    {
+                      "access_type": "range",
+                      "range_details": {
+                        "used_index": "_registrants_user_id_index"
+                      },
+                      "chosen": false,
+                      "cause": "heuristic_index_cheaper"
+                    }
+                  ]
+                },
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 6970,
+                "cost_for_plan": 701.118,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`_registrants` `r`"
+                    ],
+                    "table": "`_orders` `o`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "PRIMARY",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "rows_to_scan": 359732,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 1,
+                          "resulting_rows": 359732,
+                          "cost": 2.50733e+08,
+                          "chosen": true
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 2.50733e+09,
+                    "cost_for_plan": 2.50734e+08,
+                    "rest_of_plan": [
+                      {
+                        "plan_prefix": [
+                          "`_registrants` `r`",
+                          "`_orders` `o`"
+                        ],
+                        "table": "`_registrations` `rs`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "PRIMARY",
+                              "usable": false,
+                              "chosen": false
+                            },
+                            {
+                              "access_type": "ref",
+                              "index": "_registrations_registrant_id_foreign",
+                              "rows": 8.0516,
+                              "cost": 3.28627e+09,
+                              "chosen": true
+                            },
+                            {
+                              "access_type": "scan",
+                              "chosen": false,
+                              "cause": "covering_index_better_than_full_scan"
+                            }
+                          ]
+                        },
+                        "condition_filtering_pct": 100,
+                        "rows_for_plan": 2.0188e+10,
+                        "cost_for_plan": 3.537e+09,
+                        "rest_of_plan": [
+                          {
+                            "plan_prefix": [
+                              "`_registrants` `r`",
+                              "`_orders` `o`",
+                              "`_registrations` `rs`"
+                            ],
+                            "table": "`_line_items` `li`",
+                            "best_access_path": {
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "ref",
+                                  "index": "_line_items_order_id_foreign",
+                                  "rows": 2.48037,
+                                  "cost": 1.75258e+10,
+                                  "chosen": true
+                                },
+                                {
+                                  "access_type": "ref",
+                                  "index": "_line_items_discr_id_discr_type_order_id_index",
+                                  "rows": 1.26317,
+                                  "cost": 7.71784e+09,
+                                  "chosen": true
+                                },
+                                {
+                                  "access_type": "scan",
+                                  "chosen": false,
+                                  "cause": "covering_index_better_than_full_scan"
+                                }
+                              ]
+                            },
+                            "condition_filtering_pct": 100,
+                            "rows_for_plan": 2.55008e+10,
+                            "cost_for_plan": 1.12548e+10,
+                            "sort_cost": 2.55008e+10,
+                            "new_cost_for_plan": 3.67557e+10,
+                            "chosen": true
+                          }
+                        ]
+                      },
+                      {
+                        "plan_prefix": [
+                          "`_registrants` `r`",
+                          "`_orders` `o`"
+                        ],
+                        "table": "`_line_items` `li`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "_line_items_order_id_foreign",
+                              "rows": 2.48037,
+                              "cost": 2.17669e+09,
+                              "chosen": true
+                            },
+                            {
+                              "access_type": "ref",
+                              "index": "_line_items_discr_id_discr_type_order_id_index",
+                              "usable": false,
+                              "chosen": false
+                            },
+                            {
+                              "access_type": "scan",
+                              "chosen": false,
+                              "cause": "covering_index_better_than_full_scan"
+                            }
+                          ]
+                        },
+                        "condition_filtering_pct": 10,
+                        "rows_for_plan": 6.2191e+08,
+                        "cost_for_plan": 2.42742e+09,
+                        "rest_of_plan": [
+                          {
+                            "plan_prefix": [
+                              "`_registrants` `r`",
+                              "`_orders` `o`",
+                              "`_line_items` `li`"
+                            ],
+                            "table": "`_registrations` `rs`",
+                            "best_access_path": {
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "eq_ref",
+                                  "index": "PRIMARY",
+                                  "rows": 1,
+                                  "cost": 6.22133e+07,
+                                  "chosen": true,
+                                  "cause": "clustered_pk_chosen_by_heuristics"
+                                },
+                                {
+                                  "access_type": "scan",
+                                  "chosen": false,
+                                  "cause": "covering_index_better_than_full_scan"
+                                }
+                              ]
+                            },
+                            "condition_filtering_pct": 5,
+                            "rows_for_plan": 3.10955e+07,
+                            "cost_for_plan": 2.48963e+09,
+                            "sort_cost": 3.10955e+07,
+                            "new_cost_for_plan": 2.52073e+09,
+                            "chosen": true
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_registrants` `r`"
+                    ],
+                    "table": "`_registrations` `rs`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "PRIMARY",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_registrations_registrant_id_foreign",
+                          "rows": 8.0516,
+                          "cost": 9135.32,
+                          "chosen": true
+                        },
+                        {
+                          "access_type": "scan",
+                          "chosen": false,
+                          "cause": "covering_index_better_than_full_scan"
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 56119.6,
+                    "cost_for_plan": 9836.44,
+                    "rest_of_plan": [
+                      {
+                        "plan_prefix": [
+                          "`_registrants` `r`",
+                          "`_registrations` `rs`"
+                        ],
+                        "table": "`_orders` `o`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "PRIMARY",
+                              "usable": false,
+                              "chosen": false
+                            },
+                            {
+                              "rows_to_scan": 359732,
+                              "filtering_effect": [
+                              ],
+                              "final_filtering_effect": 1,
+                              "access_type": "scan",
+                              "using_join_cache": true,
+                              "buffers_needed": 4,
+                              "resulting_rows": 359732,
+                              "cost": 2.0188e+09,
+                              "chosen": true
+                            }
+                          ]
+                        },
+                        "condition_filtering_pct": 100,
+                        "rows_for_plan": 2.0188e+10,
+                        "cost_for_plan": 2.01881e+09,
+                        "rest_of_plan": [
+                          {
+                            "plan_prefix": [
+                              "`_registrants` `r`",
+                              "`_registrations` `rs`",
+                              "`_orders` `o`"
+                            ],
+                            "table": "`_line_items` `li`",
+                            "best_access_path": {
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "ref",
+                                  "index": "_line_items_order_id_foreign",
+                                  "rows": 2.48037,
+                                  "cost": 1.75258e+10,
+                                  "chosen": true
+                                },
+                                {
+                                  "access_type": "ref",
+                                  "index": "_line_items_discr_id_discr_type_order_id_index",
+                                  "rows": 1.26317,
+                                  "cost": 7.71784e+09,
+                                  "chosen": true
+                                },
+                                {
+                                  "access_type": "scan",
+                                  "chosen": false,
+                                  "cause": "covering_index_better_than_full_scan"
+                                }
+                              ]
+                            },
+                            "condition_filtering_pct": 100,
+                            "rows_for_plan": 2.55008e+10,
+                            "cost_for_plan": 9.73665e+09,
+                            "pruned_by_cost": true
+                          }
+                        ]
+                      },
+                      {
+                        "plan_prefix": [
+                          "`_registrants` `r`",
+                          "`_registrations` `rs`"
+                        ],
+                        "table": "`_line_items` `li`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "_line_items_order_id_foreign",
+                              "usable": false,
+                              "chosen": false
+                            },
+                            {
+                              "access_type": "ref",
+                              "index": "_line_items_discr_id_discr_type_order_id_index",
+                              "rows": 1.4289,
+                              "cost": 22595.9,
+                              "chosen": true
+                            },
+                            {
+                              "access_type": "scan",
+                              "chosen": false,
+                              "cause": "covering_index_better_than_full_scan"
+                            }
+                          ]
+                        },
+                        "condition_filtering_pct": 100,
+                        "rows_for_plan": 80189.6,
+                        "cost_for_plan": 32432.3,
+                        "rest_of_plan": [
+                          {
+                            "plan_prefix": [
+                              "`_registrants` `r`",
+                              "`_registrations` `rs`",
+                              "`_line_items` `li`"
+                            ],
+                            "table": "`_orders` `o`",
+                            "best_access_path": {
+                              "considered_access_paths": [
+                                {
+                                  "access_type": "eq_ref",
+                                  "index": "PRIMARY",
+                                  "rows": 1,
+                                  "cost": 28066.4,
+                                  "chosen": true,
+                                  "cause": "clustered_pk_chosen_by_heuristics"
+                                },
+                                {
+                                  "rows_to_scan": 359732,
+                                  "filtering_effect": [
+                                  ],
+                                  "final_filtering_effect": 1,
+                                  "access_type": "scan",
+                                  "using_join_cache": true,
+                                  "buffers_needed": 243,
+                                  "resulting_rows": 359732,
+                                  "cost": 2.88472e+09,
+                                  "chosen": false
+                                }
+                              ]
+                            },
+                            "condition_filtering_pct": 100,
+                            "rows_for_plan": 80189.6,
+                            "cost_for_plan": 60498.7,
+                            "sort_cost": 80189.6,
+                            "new_cost_for_plan": 140688,
+                            "chosen": true
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_registrants` `r`"
+                    ],
+                    "table": "`_line_items` `li`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "_line_items_order_id_foreign",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_line_items_discr_id_discr_type_order_id_index",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "rows_to_scan": 926816,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 0.1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 1,
+                          "resulting_rows": 92681.6,
+                          "cost": 6.47034e+07,
+                          "chosen": true
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 6.45991e+08,
+                    "cost_for_plan": 6.47041e+07,
+                    "pruned_by_cost": true
+                  }
+                ]
+              },
+              {
+                "plan_prefix": [
+                ],
+                "table": "`_orders` `o`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 359732,
+                      "filtering_effect": [
+                      ],
+                      "final_filtering_effect": 1,
+                      "access_type": "scan",
+                      "resulting_rows": 359732,
+                      "cost": 36141.5,
+                      "chosen": true
+                    }
+                  ]
+                },
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 359732,
+                "cost_for_plan": 36141.5,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`_orders` `o`"
+                    ],
+                    "table": "`_registrants` `r`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "PRIMARY",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_registrants_user_id_index",
+                          "rows": 6970,
+                          "cost": 2.52214e+08,
+                          "chosen": true
+                        },
+                        {
+                          "access_type": "range",
+                          "range_details": {
+                            "used_index": "_registrants_user_id_index"
+                          },
+                          "chosen": false,
+                          "cause": "heuristic_index_cheaper"
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 2.50733e+09,
+                    "cost_for_plan": 2.52251e+08,
+                    "pruned_by_cost": true
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_orders` `o`"
+                    ],
+                    "table": "`_registrations` `rs`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "PRIMARY",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_registrations_registrant_id_foreign",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "rows_to_scan": 438345,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 13,
+                          "resulting_rows": 438345,
+                          "cost": 1.57687e+10,
+                          "chosen": true
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 1.57687e+11,
+                    "cost_for_plan": 1.57687e+10,
+                    "pruned_by_cost": true
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_orders` `o`"
+                    ],
+                    "table": "`_line_items` `li`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "_line_items_order_id_foreign",
+                          "rows": 2.48037,
+                          "cost": 312293,
+                          "chosen": true
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_line_items_discr_id_discr_type_order_id_index",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "scan",
+                          "chosen": false,
+                          "cause": "covering_index_better_than_full_scan"
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 10,
+                    "rows_for_plan": 89226.7,
+                    "cost_for_plan": 348435,
+                    "pruned_by_cost": true
+                  }
+                ]
+              },
+              {
+                "plan_prefix": [
+                ],
+                "table": "`_registrations` `rs`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "access_type": "ref",
+                      "index": "_registrations_registrant_id_foreign",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 438345,
+                      "filtering_effect": [
+                      ],
+                      "final_filtering_effect": 1,
+                      "access_type": "scan",
+                      "resulting_rows": 438345,
+                      "cost": 44066.8,
+                      "chosen": true
+                    }
+                  ]
+                },
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 438345,
+                "cost_for_plan": 44066.8,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`_registrations` `rs`"
+                    ],
+                    "table": "`_registrants` `r`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "eq_ref",
+                          "index": "PRIMARY",
+                          "rows": 1,
+                          "cost": 153421,
+                          "chosen": true,
+                          "cause": "clustered_pk_chosen_by_heuristics"
+                        },
+                        {
+                          "rows_to_scan": 6970,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "range",
+                          "range_details": {
+                            "used_index": "_registrants_user_id_index"
+                          },
+                          "resulting_rows": 6970,
+                          "cost": 6.12862e+08,
+                          "chosen": false
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 8.53163,
+                    "rows_for_plan": 37398,
+                    "cost_for_plan": 197488,
+                    "pruned_by_cost": true
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_registrations` `rs`"
+                    ],
+                    "table": "`_orders` `o`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "PRIMARY",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "rows_to_scan": 359732,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 14,
+                          "resulting_rows": 359732,
+                          "cost": 1.57687e+10,
+                          "chosen": true
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 1.57687e+11,
+                    "cost_for_plan": 1.57687e+10,
+                    "pruned_by_cost": true
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_registrations` `rs`"
+                    ],
+                    "table": "`_line_items` `li`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "_line_items_order_id_foreign",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_line_items_discr_id_discr_type_order_id_index",
+                          "rows": 1.4289,
+                          "cost": 176494,
+                          "chosen": true
+                        },
+                        {
+                          "access_type": "scan",
+                          "chosen": false,
+                          "cause": "covering_index_better_than_full_scan"
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 626353,
+                    "cost_for_plan": 220561,
+                    "pruned_by_cost": true
+                  }
+                ]
+              },
+              {
+                "plan_prefix": [
+                ],
+                "table": "`_line_items` `li`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "_line_items_order_id_foreign",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "access_type": "ref",
+                      "index": "_line_items_discr_id_discr_type_order_id_index",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 926816,
+                      "filtering_effect": [
+                      ],
+                      "final_filtering_effect": 0.1,
+                      "access_type": "scan",
+                      "resulting_rows": 92681.6,
+                      "cost": 93458.6,
+                      "chosen": true
+                    }
+                  ]
+                },
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 92681.6,
+                "cost_for_plan": 93458.6,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`_line_items` `li`"
+                    ],
+                    "table": "`_registrants` `r`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "PRIMARY",
+                          "usable": false,
+                          "chosen": false
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "_registrants_user_id_index",
+                          "rows": 6970,
+                          "cost": 6.49807e+07,
+                          "chosen": true
+                        },
+                        {
+                          "access_type": "range",
+                          "range_details": {
+                            "used_index": "_registrants_user_id_index"
+                          },
+                          "chosen": false,
+                          "cause": "heuristic_index_cheaper"
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 6.45991e+08,
+                    "cost_for_plan": 6.50742e+07,
+                    "pruned_by_cost": true
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_line_items` `li`"
+                    ],
+                    "table": "`_orders` `o`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "eq_ref",
+                          "index": "PRIMARY",
+                          "rows": 1,
+                          "cost": 32438.6,
+                          "chosen": true,
+                          "cause": "clustered_pk_chosen_by_heuristics"
+                        },
+                        {
+                          "rows_to_scan": 359732,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 275,
+                          "resulting_rows": 359732,
+                          "cost": 3.3341e+09,
+                          "chosen": false
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 92681.6,
+                    "cost_for_plan": 125897,
+                    "rest_of_plan": [
+                      {
+                        "plan_prefix": [
+                          "`_line_items` `li`",
+                          "`_orders` `o`"
+                        ],
+                        "table": "`_registrations` `rs`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "eq_ref",
+                              "index": "PRIMARY",
+                              "rows": 1,
+                              "cost": 32438.6,
+                              "chosen": true,
+                              "cause": "clustered_pk_chosen_by_heuristics"
+                            },
+                            {
+                              "access_type": "scan",
+                              "chosen": false,
+                              "cause": "covering_index_better_than_full_scan"
+                            }
+                          ]
+                        },
+                        "added_to_eq_ref_extension": true,
+                        "condition_filtering_pct": 100,
+                        "rows_for_plan": 92681.6,
+                        "cost_for_plan": 158336,
+                        "pruned_by_cost": true
+                      },
+                      {
+                        "plan_prefix": [
+                          "`_line_items` `li`",
+                          "`_orders` `o`"
+                        ],
+                        "table": "`_registrants` `r`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "PRIMARY",
+                              "usable": false,
+                              "chosen": false
+                            },
+                            {
+                              "access_type": "ref",
+                              "index": "_registrants_user_id_index",
+                              "rows": 6970,
+                              "cost": 6.49807e+07,
+                              "chosen": true
+                            },
+                            {
+                              "access_type": "range",
+                              "range_details": {
+                                "used_index": "_registrants_user_id_index"
+                              },
+                              "chosen": false,
+                              "cause": "heuristic_index_cheaper"
+                            }
+                          ]
+                        },
+                        "condition_filtering_pct": 100,
+                        "rows_for_plan": 6.45991e+08,
+                        "cost_for_plan": 6.51066e+07,
+                        "pruned_by_cost": true
+                      },
+                      {
+                        "plan_prefix": [
+                          "`_line_items` `li`",
+                          "`_orders` `o`"
+                        ],
+                        "table": "`_registrations` `rs`",
+                        "best_access_path": {
+                          "considered_access_paths": [
+                            {
+                              "access_type": "eq_ref",
+                              "index": "PRIMARY",
+                              "rows": 1,
+                              "cost": 32438.6,
+                              "chosen": true,
+                              "cause": "clustered_pk_chosen_by_heuristics"
+                            },
+                            {
+                              "access_type": "scan",
+                              "chosen": false,
+                              "cause": "covering_index_better_than_full_scan"
+                            }
+                          ]
+                        },
+                        "condition_filtering_pct": 100,
+                        "rows_for_plan": 92681.6,
+                        "cost_for_plan": 158336,
+                        "pruned_by_cost": true
+                      }
+                    ]
+                  },
+                  {
+                    "plan_prefix": [
+                      "`_line_items` `li`"
+                    ],
+                    "table": "`_registrations` `rs`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "eq_ref",
+                          "index": "PRIMARY",
+                          "rows": 1,
+                          "cost": 32438.6,
+                          "chosen": true,
+                          "cause": "clustered_pk_chosen_by_heuristics"
+                        },
+                        {
+                          "access_type": "scan",
+                          "chosen": false,
+                          "cause": "covering_index_better_than_full_scan"
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 92681.6,
+                    "cost_for_plan": 125897,
+                    "pruned_by_heuristic": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "attaching_conditions_to_tables": {
+              "original_condition": "((`o`.`id` = `li`.`order_id`) and (`rs`.`registrant_id` = `r`.`id`) and (`r`.`user_id` = 58) and (`li`.`discr_type` = 'event') and (`rs`.`id` = `li`.`discr_id`))",
+              "attached_conditions_computation": [
+              ],
+              "attached_conditions_summary": [
+                {
+                  "table": "`_registrants` `r`",
+                  "attached": "(`r`.`user_id` = 58)"
+                },
+                {
+                  "table": "`_registrations` `rs`",
+                  "attached": "(`rs`.`registrant_id` = `r`.`id`)"
+                },
+                {
+                  "table": "`_line_items` `li`",
+                  "attached": "(((`li`.`discr_type` = 'event') and (`rs`.`id` = `li`.`discr_id`)) and (`li`.`order_id` is not null))"
+                },
+                {
+                  "table": "`_orders` `o`",
+                  "attached": "(`o`.`id` = `li`.`order_id`)"
+                }
+              ]
+            }
+          },
+          {
+            "optimizing_distinct_group_by_order_by": {
+              "simplifying_group_by": {
+                "original_clause": "`o`.`id`",
+                "items": [
+                  {
+                    "item": "`o`.`id`"
+                  }
+                ],
+                "resulting_clause_is_simple": false,
+                "resulting_clause": "`o`.`id`"
+              }
+            }
+          },
+          {
+            "finalizing_table_conditions": [
+              {
+                "table": "`_registrants` `r`",
+                "original_table_condition": "(`r`.`user_id` = 58)",
+                "final_table_condition   ": null
+              },
+              {
+                "table": "`_registrations` `rs`",
+                "original_table_condition": "(`rs`.`registrant_id` = `r`.`id`)",
+                "final_table_condition   ": null
+              },
+              {
+                "table": "`_line_items` `li`",
+                "original_table_condition": "(((`li`.`discr_type` = 'event') and (`rs`.`id` = `li`.`discr_id`)) and (`li`.`order_id` is not null))",
+                "final_table_condition   ": "((`rs`.`id` = `li`.`discr_id`) and (`li`.`order_id` is not null))"
+              },
+              {
+                "table": "`_orders` `o`",
+                "original_table_condition": "(`o`.`id` = `li`.`order_id`)",
+                "final_table_condition   ": null
+              }
+            ]
+          },
+          {
+            "refine_plan": [
+              {
+                "table": "`_registrants` `r`"
+              },
+              {
+                "table": "`_registrations` `rs`"
+              },
+              {
+                "table": "`_line_items` `li`"
+              },
+              {
+                "table": "`_orders` `o`"
+              }
+            ]
+          },
+          {
+            "considering_tmp_tables": [
+              {
+                "adding_tmp_table_in_plan_at_position": 4,
+                "write_method": "write_all_rows"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "join_execution": {
+        "select#": 1,
+        "steps": [
+          {
+            "creating_tmp_table": {
+              "tmp_table_info": {
+                "in_plan_at_position": 4,
+                "columns": 2,
+                "row_length": 9,
+                "key_length": 4,
+                "unique_constraint": false,
+                "makes_grouped_rows": true,
+                "cannot_insert_duplicates": false,
+                "location": "TempTable"
+              }
+            }
+          },
+          {
+            "materialize": {
+              "select#": 1,
+              "steps": [
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
