@@ -1,0 +1,25 @@
+version: "3.3"
+
+services:
+  repro:
+    build: .
+    command: "bash /app/vendor/bin/wait-for-it.sh mysql8-repro:3306 -s -t 0 -- php /app/repro.php"
+    environment:
+      DB_HOST: mysql8-repro
+      DB_PORT: 3306
+      DB_NAME: repro
+      DB_PASSWORD: repro
+      DB_USERNAME: root
+    depends_on:
+      - mysql8-repro
+    volumes:
+      - .:/app
+    links:
+      - mysql8-repro
+  mysql8-repro:
+    image: mysql:8.0.26
+    volumes:
+      - ./Docker/mysql:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_ROOT_PASSWORD: repro
+      MYSQL_DATABASE: repro
